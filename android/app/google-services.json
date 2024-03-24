@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "284039255803",
+    "project_id": "langlearn-6d3b8",
+    "storage_bucket": "langlearn-6d3b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:284039255803:android:d6b92ab2adfa03826c825e",
+        "android_client_info": {
+          "package_name": "com.example.language_learning_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyVX84bMJfeIlKFW6ONSgbqUqG3ca-f6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

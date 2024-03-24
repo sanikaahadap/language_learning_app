@@ -1,79 +1,148 @@
-import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'dart:developer';
 
-class SignupPage extends StatefulWidget {
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:language_learning_app/user.dart';
+
+import 'home_page.dart'; // Import Firestore
+
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({ Key? key }) : super(key: key);
+
   @override
-  _SignupPageState createState() => _SignupPageState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeInAnimation;
-  late Animation<Offset> _slideAnimation;
+class _SignUpScreenState extends State<SignUpScreen> {
 
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-    _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -0.5), // Start position above the screen
-      end: Offset.zero, // End position at the center of the screen
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    _animationController.forward();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController cPasswordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+
+  // Method to create account and store email in Firestore
+  void createAccount() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String cPassword = cPasswordController.text.trim();
+
+    if (email == "" || password == "" || cPassword == "") {
+      log("Please fill all the details!");
+    } else if (password != cPassword) {
+      log("Passwords do not match!");
+    } else {
+
+
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+        if (userCredential.user != null) {
+          log("User created successfully");
+          saveUser(); // Add this log
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const LanguageLearningAppHomePage()));
+        }
+      } on FirebaseAuthException catch (ex) {
+        log("FirebaseAuthException: ${ex.code}"); // Add this log
+      } catch (e) {
+        log("Error: $e"); // Add this log
+      }
+    }
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
+  Future<void> saveUser() async {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+
+
+    if (name != "" && email != "" ) {
+      ModelUser user = ModelUser(
+          name: name,
+          email: email
+      );
+      try {
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .set(user.toJson());
+        log("User created!");
+      } catch (err) {
+        log(err.toString());
+      }
+    } else {
+      log("Please fill all the fields!");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _fadeInAnimation,
-      builder: (context, child) {
-        return Scaffold(
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Your signup page UI components here
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("Create an account"),
+      ),
+      body: SafeArea(
+        child: ListView(
+          children: [
 
-                  // Example button to navigate to home page
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LanguageLearningAppHomePage(fromLogin: false),
-                        ),
-                      );
-                    },
-                    child: Text('Signup'),
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                children: [
+
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                        labelText: "Name"
+                    ),
                   ),
+
+                  const SizedBox(height: 10,),
+
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                        labelText: "Email Address"
+                    ),
+                  ),
+
+                  const SizedBox(height: 10,),
+
+                  TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                        labelText: "Password"
+                    ),
+                  ),
+
+                  const SizedBox(height: 10,),
+
+                  TextField(
+                    controller: cPasswordController,
+                    decoration: const InputDecoration(
+                        labelText: "Confirm Password"
+                    ),
+                  ),
+
+                  const SizedBox(height: 20,),
+
+                  CupertinoButton(
+                    onPressed: () {
+                      createAccount();
+                    },
+                    color: Colors.blue,
+                    child: const Text("Create Account"),
+                  )
+
                 ],
               ),
-            ),
-          ),
-        );
-      },
+            )
+
+          ],
+        ),
+      ),
     );
   }
 }

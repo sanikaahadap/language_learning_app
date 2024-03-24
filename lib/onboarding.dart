@@ -3,20 +3,22 @@ import 'login.dart';
 import 'signup.dart';
 
 class OnboardingPage extends StatefulWidget {
+  const OnboardingPage({super.key});
+
   @override
   OnboardingPageState createState() => OnboardingPageState();
 }
 
 class OnboardingPageState extends State<OnboardingPage> {
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
 
-  List<Color> _pageColors = [
+  final List<Color> _pageColors = [
     Colors.blue,
     Colors.green,
     Colors.orange,
   ];
 
-  List<String> _pageTexts = [
+  final List<String> _pageTexts = [
     'Learn a new language',
     'Learn anytime, anywhere',
     'Let\'s start',
@@ -58,7 +60,7 @@ class OnboardingPageState extends State<OnboardingPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -81,7 +83,7 @@ class OnboardingPageState extends State<OnboardingPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignupPage()),
+                        MaterialPageRoute(builder: (context) => const SignUpScreen()),
                       );
                     },
                     style: OutlinedButton.styleFrom(

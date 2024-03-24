@@ -1,79 +1,109 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:language_learning_app/signup.dart';
+
 import 'home_page.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({ Key? key }) : super(key: key);
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeInAnimation;
-  late Animation<Offset> _slideAnimation;
+class _LoginScreenState extends State<LoginScreen> {
 
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-    _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -0.5), // Start position above the screen
-      end: Offset.zero, // End position at the center of the screen
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    _animationController.forward();
-  }
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
+  void login() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    if(email == "" || password == "") {
+      log("Please fill all the fields!");
+    }
+    else {
+
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+        if(userCredential.user != null) {
+
+          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.pushReplacement(context, CupertinoPageRoute(
+              builder: (context) => const LanguageLearningAppHomePage()
+          ));
+
+        }
+      } on FirebaseAuthException catch(ex) {
+        log(ex.code.toString());
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _fadeInAnimation,
-      builder: (context, child) {
-        return Scaffold(
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Your login page UI components here
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("Login"),
+      ),
+      body: SafeArea(
+        child: ListView(
+          children: [
 
-                  // Example button to navigate to home page
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LanguageLearningAppHomePage(fromLogin: true),
-                        ),
-                      );
-                    },
-                    child: Text('Login'),
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                children: [
+
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                        labelText: "Email Address"
+                    ),
                   ),
+
+                  const SizedBox(height: 10,),
+
+                  TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                        labelText: "Password"
+                    ),
+                  ),
+
+                  const SizedBox(height: 20,),
+
+                  CupertinoButton(
+                    onPressed: () {
+                      login();
+                    },
+                    color: Colors.blue,
+                    child: const Text("Log In"),
+                  ),
+
+                  const SizedBox(height: 10,),
+
+                  CupertinoButton(
+                    onPressed: () {
+                      Navigator.push(context, CupertinoPageRoute(
+                          builder: (context) => const SignUpScreen()
+                      ));
+                    },
+                    child: const Text("Create an Account"),
+                  ),
+
                 ],
               ),
             ),
-          ),
-        );
-      },
+
+          ],
+        ),
+      ),
     );
   }
 }
