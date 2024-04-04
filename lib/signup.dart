@@ -5,49 +5,48 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:language_learning_app/user.dart';
-
 import 'home_page.dart'; // Import Firestore
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({ Key? key }) : super(key: key);
+  const SignUpScreen({Key? key}) : super(key: key);
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-
+  TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController cPasswordController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
+  String selectedLanguage = 'French';
+  double knowledgeLevel = 0.0;
+  bool agreement = false;
 
-  // Method to create account and store email in Firestore
   void createAccount() async {
+    String name = nameController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     String cPassword = cPasswordController.text.trim();
 
-    if (email == "" || password == "" || cPassword == "") {
+    if (name == "" || email == "" || password == "" || cPassword == "") {
       log("Please fill all the details!");
     } else if (password != cPassword) {
       log("Passwords do not match!");
     } else {
-
-
       try {
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
         if (userCredential.user != null) {
           log("User created successfully");
-          saveUser(); // Add this log
+          saveUser();
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const LanguageLearningAppHomePage()));
         }
       } on FirebaseAuthException catch (ex) {
-        log("FirebaseAuthException: ${ex.code}"); // Add this log
+        log("FirebaseAuthException: ${ex.code}");
       } catch (e) {
-        log("Error: $e"); // Add this log
+        log("Error: $e");
       }
     }
   }
@@ -56,11 +55,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     String name = nameController.text.trim();
     String email = emailController.text.trim();
 
-
-    if (name != "" && email != "" ) {
+    if (name != "" && email != "") {
       ModelUser user = ModelUser(
-          name: name,
-          email: email
+        name: name,
+        email: email,
+        language: selectedLanguage,
+        level: knowledgeLevel,
+        agreement: agreement,
       );
       try {
         await FirebaseFirestore.instance
@@ -86,48 +87,83 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: SafeArea(
         child: ListView(
           children: [
-
             Padding(
               padding: const EdgeInsets.all(15),
               child: Column(
                 children: [
-
                   TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
-                        labelText: "Name"
+                      labelText: "Name",
                     ),
                   ),
-
-                  const SizedBox(height: 10,),
-
+                  const SizedBox(height: 10),
                   TextField(
                     controller: emailController,
                     decoration: const InputDecoration(
-                        labelText: "Email Address"
+                      labelText: "Email Address",
                     ),
                   ),
-
-                  const SizedBox(height: 10,),
-
+                  const SizedBox(height: 10),
                   TextField(
                     controller: passwordController,
                     decoration: const InputDecoration(
-                        labelText: "Password"
+                      labelText: "Password",
                     ),
+                    obscureText: true,
                   ),
-
-                  const SizedBox(height: 10,),
-
+                  const SizedBox(height: 10),
                   TextField(
                     controller: cPasswordController,
                     decoration: const InputDecoration(
-                        labelText: "Confirm Password"
+                      labelText: "Confirm Password",
                     ),
+                    obscureText: true,
                   ),
-
-                  const SizedBox(height: 20,),
-
+                  const SizedBox(height: 10),
+                  DropdownButton<String>(
+                    value: selectedLanguage,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedLanguage = newValue!;
+                      });
+                    },
+                    items: <String>['French', 'Hindi', 'German']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  Slider(
+                    value: knowledgeLevel,
+                    min: 0,
+                    max: 100,
+                    divisions: 10,
+                    label: knowledgeLevel.round().toString(),
+                    onChanged: (double value) {
+                      setState(() {
+                        knowledgeLevel = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: agreement,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            agreement = value!;
+                          });
+                        },
+                      ),
+                      const Text('I agree to the terms and conditions'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                   CupertinoButton(
                     onPressed: () {
                       createAccount();
@@ -135,11 +171,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     color: Colors.blue,
                     child: const Text("Create Account"),
                   )
-
                 ],
               ),
             )
-
           ],
         ),
       ),

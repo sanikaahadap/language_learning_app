@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'qrscan.dart';
+import 'phrases_shake.dart';
+import 'moredetails.dart';
 
 class LanguageLearningAppHomePage extends StatefulWidget {
   final bool fromLogin;
@@ -20,7 +23,7 @@ class _LanguageLearningAppHomePageState extends State<LanguageLearningAppHomePag
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Language Learning App'),
+
         backgroundColor: const Color(0xFF4CAF50), // Green color for app bar
       ),
       drawer: Drawer(
@@ -57,6 +60,35 @@ class _LanguageLearningAppHomePageState extends State<LanguageLearningAppHomePag
                 );
               },
             ),
+            ListTile(
+              title: const Text('QR code scanner'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => QRScannerScreen()),
+                );
+
+              },
+            ),
+            ListTile(
+              title: const Text('Quick Practice Phrases'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PhraseShakePage()),
+                );
+
+              },
+            ),
+            ListTile(
+              title: Text('Logout'),
+              leading: Icon(Icons.logout),
+              onTap: () {
+                // Perform logout actions here
+                Navigator.pop(context);
+                // Navigate to login page or perform logout functionality
+              },
+            ),
             // Add more drawer items as needed
           ],
         ),
@@ -66,15 +98,23 @@ class _LanguageLearningAppHomePageState extends State<LanguageLearningAppHomePag
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Add the image icon above the button
               Text(
-                'Welcome to Language Learning App',
+                'Welcome to LangLearn',
                 style: TextStyle(
                   fontSize: 24,
-                  color: Colors.white, // Text color
-                  fontWeight: FontWeight.bold,
+                  color: Colors.black, // Text color
                 ),
                 textAlign: TextAlign.center,
               ),
+              SizedBox(height: 20),
+              Image.asset(
+                'assets/icon.jpg', // Path to your image file
+                width: 150, // Adjust width as needed
+                height: 150, // Adjust height as needed
+              ),
+
+              SizedBox(height: 20), // Add spacing between the image and button
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -84,7 +124,6 @@ class _LanguageLearningAppHomePageState extends State<LanguageLearningAppHomePag
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.green, // Button color
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50), // Button padding
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10), // Button border radius
@@ -95,10 +134,23 @@ class _LanguageLearningAppHomePageState extends State<LanguageLearningAppHomePag
                   style: TextStyle(fontSize: 18), // Button text style
                 ),
               ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // Navigate back to the home page
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MoreDetails(),
+                      )
+                  );
+                },
+                child: Text('More Info'),
+              ),
             ],
           ),
         ),
       ),
+
     );
   }
 }

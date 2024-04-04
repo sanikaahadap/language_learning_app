@@ -27,22 +27,27 @@ class _LoginScreenState extends State<LoginScreen> {
       log("Please fill all the fields!");
     }
     else {
-
       try {
+        // Check if the user is already authenticated
+        if (FirebaseAuth.instance.currentUser != null) {
+          // If authenticated, sign out before proceeding with login
+          await FirebaseAuth.instance.signOut();
+        }
+
+        // Proceed with login process
         UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
         if(userCredential.user != null) {
-
           Navigator.popUntil(context, (route) => route.isFirst);
           Navigator.pushReplacement(context, CupertinoPageRoute(
               builder: (context) => const LanguageLearningAppHomePage()
           ));
-
         }
       } on FirebaseAuthException catch(ex) {
         log(ex.code.toString());
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

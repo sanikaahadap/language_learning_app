@@ -19,9 +19,9 @@ class OnboardingPageState extends State<OnboardingPage> {
   ];
 
   final List<String> _pageTexts = [
+    'Sanika Hadap D12C 22',
     'Learn a new language',
     'Learn anytime, anywhere',
-    'Let\'s start',
   ];
 
   @override
